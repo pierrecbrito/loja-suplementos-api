@@ -1,0 +1,1361 @@
+{
+	"info": {
+		"_postman_id": "550e8c0c-8b87-4e0c-9c0b-f8a5e9f7d6c8",
+		"name": "Loja Suplementos API - Complete Collection",
+		"description": "Collection completa para testar a API REST de Loja de Suplementos com Spring Boot 3.5.3\n\n### Funcionalidades Implementadas:\n- ✅ CRUD completo para todas as entidades\n- ✅ Autenticação JWT (STATELESS)\n- ✅ Autorização baseada em roles (ROLE_USER, ROLE_ADMIN)\n- ✅ HATEOAS Nível 3 (links de navegação)\n- ✅ Paginação em todas as listagens\n- ✅ Relacionamentos 1-1, 1-N e N-N\n- ✅ Auditoria/Logging de operações\n- ✅ Validação de dados\n- ✅ Tratamento de erros\n\n### Como usar:\n1. Execute o registro de usuário admin\n2. Faça login para obter o token JWT\n3. Use o token nas requisições protegidas\n4. Teste todos os endpoints disponíveis",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Autenticação",
+			"item": [
+				{
+					"name": "Registrar Usuário Admin",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Admin Sistema\",\n    \"email\": \"admin@sistema.com\",\n    \"senha\": \"admin123\",\n    \"telefone\": \"11999999999\",\n    \"role\": \"ROLE_ADMIN\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					}
+				},
+				{
+					"name": "Registrar Usuário Cliente",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"João Silva\",\n    \"email\": \"joao@cliente.com\",\n    \"senha\": \"cliente123\",\n    \"telefone\": \"11888888888\",\n    \"role\": \"ROLE_USER\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					}
+				},
+				{
+					"name": "Login Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('adminToken', response.token);",
+									"    pm.collectionVariables.set('adminId', response.id);",
+									"    console.log('Token Admin salvo:', response.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@sistema.com\",\n    \"senha\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					}
+				},
+				{
+					"name": "Login Cliente",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('userToken', response.token);",
+									"    pm.collectionVariables.set('userId', response.id);",
+									"    console.log('Token Cliente salvo:', response.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"joao@cliente.com\",\n    \"senha\": \"cliente123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Usuários",
+			"item": [
+				{
+					"name": "Listar Usuários (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/usuarios?page=0&size=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"usuarios"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Obter Usuário por ID (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/usuarios/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"usuarios",
+								"{{userId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Obter Perfil Atual (Cliente)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/usuarios/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"usuarios",
+								"me"
+							]
+						}
+					}
+				},
+				{
+					"name": "Atualizar Usuário (Próprio)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"João Silva Santos\",\n    \"email\": \"joao@cliente.com\",\n    \"senha\": \"cliente123\",\n    \"telefone\": \"11888888888\",\n    \"role\": \"ROLE_USER\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/usuarios/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"usuarios",
+								"{{userId}}"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Categorias",
+			"item": [
+				{
+					"name": "Criar Categoria Proteína (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Proteínas\",\n    \"descricao\": \"Suplementos proteicos para ganho de massa muscular\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/categorias",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categorias"
+							]
+						}
+					}
+				},
+				{
+					"name": "Criar Categoria Vitaminas (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Vitaminas\",\n    \"descricao\": \"Vitaminas e minerais essenciais\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/categorias",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categorias"
+							]
+						}
+					}
+				},
+				{
+					"name": "Listar Categorias",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/categorias?page=0&size=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categorias"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Obter Categoria por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/categorias/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categorias",
+								"1"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Suplementos",
+			"item": [
+				{
+					"name": "Criar Suplemento Whey Protein (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Whey Protein Concentrado\",\n    \"marca\": \"Max Titanium\",\n    \"descricao\": \"Proteína concentrada do soro do leite com alto valor biológico\",\n    \"preco\": 89.90,\n    \"quantidadeEstoque\": 50,\n    \"pesoGramas\": 900,\n    \"imagemUrl\": \"https://exemplo.com/whey-protein.jpg\",\n    \"codigoBarras\": \"7891234567890\",\n    \"dataValidade\": \"2025-12-31\",\n    \"destaque\": true,\n    \"categoriaIds\": [1]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/suplementos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"suplementos"
+							]
+						}
+					}
+				},
+				{
+					"name": "Criar Suplemento Creatina (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Creatina Monohidratada\",\n    \"marca\": \"Growth\",\n    \"descricao\": \"Creatina pura para aumento de força e resistência\",\n    \"preco\": 45.50,\n    \"quantidadeEstoque\": 30,\n    \"pesoGramas\": 300,\n    \"imagemUrl\": \"https://exemplo.com/creatina.jpg\",\n    \"codigoBarras\": \"7891234567891\",\n    \"dataValidade\": \"2026-06-30\",\n    \"destaque\": false,\n    \"categoriaIds\": [1]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/suplementos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"suplementos"
+							]
+						}
+					}
+				},
+				{
+					"name": "Listar Suplementos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/suplementos?page=0&size=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"suplementos"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Obter Suplemento por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/suplementos/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"suplementos",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Buscar Suplementos por Nome",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/suplementos/search?nome=whey&page=0&size=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"suplementos",
+								"search"
+							],
+							"query": [
+								{
+									"key": "nome",
+									"value": "whey"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Buscar Suplementos por Categoria",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/suplementos/categoria/1?page=0&size=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"suplementos",
+								"categoria",
+								"1"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Atualizar Suplemento (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Whey Protein Concentrado Premium\",\n    \"marca\": \"Max Titanium\",\n    \"descricao\": \"Proteína concentrada do soro do leite com alto valor biológico - Versão Premium\",\n    \"preco\": 95.90,\n    \"quantidadeEstoque\": 45,\n    \"pesoGramas\": 900,\n    \"imagemUrl\": \"https://exemplo.com/whey-protein-premium.jpg\",\n    \"codigoBarras\": \"7891234567890\",\n    \"dataValidade\": \"2025-12-31\",\n    \"destaque\": true,\n    \"categoriaIds\": [1]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/suplementos/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"suplementos",
+								"1"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "5. Carrinho",
+			"item": [
+				{
+					"name": "Obter Carrinho (Cliente)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/carrinho",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carrinho"
+							]
+						}
+					}
+				},
+				{
+					"name": "Adicionar Item ao Carrinho",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"suplementoId\": 1,\n    \"quantidade\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/carrinho/itens",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carrinho",
+								"itens"
+							]
+						}
+					}
+				},
+				{
+					"name": "Adicionar Outro Item ao Carrinho",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"suplementoId\": 2,\n    \"quantidade\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/carrinho/itens",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carrinho",
+								"itens"
+							]
+						}
+					}
+				},
+				{
+					"name": "Atualizar Quantidade Item",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/carrinho/itens/1?quantidade=3",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carrinho",
+								"itens",
+								"1"
+							],
+							"query": [
+								{
+									"key": "quantidade",
+									"value": "3"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Remover Item do Carrinho",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/carrinho/itens/2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carrinho",
+								"itens",
+								"2"
+							]
+						}
+					}
+				},
+				{
+					"name": "Limpar Carrinho",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/carrinho",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carrinho"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "6. Pedidos",
+			"item": [
+				{
+					"name": "Criar Pedido (Cliente)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"formaPagamento\": \"CARTAO_CREDITO\",\n    \"endereco\": {\n        \"rua\": \"Rua das Flores, 123\",\n        \"cidade\": \"São Paulo\",\n        \"estado\": \"SP\",\n        \"cep\": \"01234567\"\n    },\n    \"itens\": [\n        {\n            \"suplementoId\": 1,\n            \"quantidade\": 2,\n            \"precoUnitario\": 89.90\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/pedidos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pedidos"
+							]
+						}
+					}
+				},
+				{
+					"name": "Listar Pedidos (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/pedidos?page=0&size=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pedidos"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Obter Pedido por ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/pedidos/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pedidos",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Listar Pedidos do Cliente",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/pedidos/usuario/{{userId}}?page=0&size=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pedidos",
+								"usuario",
+								"{{userId}}"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Atualizar Status Pedido (Admin)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/pedidos/1/status?status=PROCESSANDO",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pedidos",
+								"1",
+								"status"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "PROCESSANDO"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Buscar Pedidos por Status (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/pedidos/status/PROCESSANDO?page=0&size=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pedidos",
+								"status",
+								"PROCESSANDO"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "7. Avaliações",
+			"item": [
+				{
+					"name": "Criar Avaliação (Cliente)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"suplementoId\": 1,\n    \"nota\": 5,\n    \"comentario\": \"Excelente produto! Recomendo para todos que buscam qualidade.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/avaliacoes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"avaliacoes"
+							]
+						}
+					}
+				},
+				{
+					"name": "Listar Avaliações (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/avaliacoes?page=0&size=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"avaliacoes"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Obter Avaliação por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/avaliacoes/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"avaliacoes",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Listar Avaliações do Suplemento",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/avaliacoes/suplemento/1?page=0&size=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"avaliacoes",
+								"suplemento",
+								"1"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Listar Avaliações do Cliente",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/avaliacoes/usuario/{{userId}}?page=0&size=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"avaliacoes",
+								"usuario",
+								"{{userId}}"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Atualizar Avaliação (Cliente)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"suplementoId\": 1,\n    \"nota\": 4,\n    \"comentario\": \"Produto muito bom! Ajudou bastante no meu treino.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/avaliacoes/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"avaliacoes",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Deletar Avaliação (Cliente)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/avaliacoes/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"avaliacoes",
+								"1"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "8. Auditoria (Admin)",
+			"item": [
+				{
+					"name": "Listar Logs de Auditoria",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logs?page=0&size=20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logs"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "20"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Obter Log por ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logs/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logs",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Buscar Logs por Tabela",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logs/tabela/suplemento?page=0&size=20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logs",
+								"tabela",
+								"suplemento"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "20"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Buscar Logs por Operação",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logs/operacao/INSERT?page=0&size=20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logs",
+								"operacao",
+								"INSERT"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "20"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "9. Testes de Autorização",
+			"item": [
+				{
+					"name": "Tentar Acessar Usuários sem Token (401)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/usuarios",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"usuarios"
+							]
+						}
+					}
+				},
+				{
+					"name": "Cliente Tentar Acessar Lista de Usuários (403)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/usuarios",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"usuarios"
+							]
+						}
+					}
+				},
+				{
+					"name": "Cliente Tentar Criar Suplemento (403)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Teste Não Autorizado\",\n    \"marca\": \"Teste\",\n    \"preco\": 50.00,\n    \"quantidadeEstoque\": 10\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/suplementos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"suplementos"
+							]
+						}
+					}
+				},
+				{
+					"name": "Cliente Tentar Acessar Logs (403)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logs"
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "adminToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "adminId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
