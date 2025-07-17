@@ -48,15 +48,6 @@ public class AuthController {
         this.jwtUtils = jwtUtils;
     }
     
-    // Temporariamente desabilitado para testar a API
-    /*
-    @Operation(summary = "Autenticar usuário")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Usuário autenticado com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = JWTResponse.class))),
-        @ApiResponse(responseCode = "401", description = "Não autorizado", content = @Content),
-        @ApiResponse(responseCode = "400", description = "Requisição inválida", content = @Content)
-    })
-    */
     @PostMapping("/login")
     public ResponseEntity<JWTResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
@@ -79,17 +70,9 @@ public class AuthController {
                 .build());
     }
     
-    // Temporariamente desabilitado para testar a API
-    /*
-    @Operation(summary = "Registrar usuário")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Usuário registrado com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsuarioResponse.class))),
-        @ApiResponse(responseCode = "400", description = "Requisição inválida", content = @Content)
-    })
-    */
     @PostMapping("/register")
     public ResponseEntity<UsuarioResponse> registerUser(@Valid @RequestBody UsuarioRequest usuarioRequest) {
         UsuarioResponse usuarioResponse = usuarioService.create(usuarioRequest);
-        return ResponseEntity.ok(usuarioResponse);
+        return ResponseEntity.status(201).body(usuarioResponse);
     }
 }

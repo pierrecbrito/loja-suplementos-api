@@ -12,11 +12,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 
-/**
- * Aspecto para registrar log das operações da aplicação.
- * Esta é uma implementação de logger em nível de aplicação que registra
- * chamadas de métodos e exceções lançadas.
- */
 @Aspect
 @Component
 public class Logging {

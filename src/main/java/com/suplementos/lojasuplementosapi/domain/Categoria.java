@@ -23,7 +23,6 @@ public class Categoria extends BaseEntity {
     
     private String descricao;
     
-    // Relacionamento N-N com Suplemento
     @ManyToMany(mappedBy = "categorias")
     private Set<Suplemento> suplementos = new HashSet<>();
 }

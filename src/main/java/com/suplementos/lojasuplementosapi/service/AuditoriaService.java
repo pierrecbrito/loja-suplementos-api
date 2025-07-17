@@ -26,9 +26,19 @@ public class AuditoriaService {
     private final ObjectMapper objectMapper;
     
     @Async("auditoriaExecutor")
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
     public void registrarOperacao(String tabela, LogAuditoria.TipoOperacao operacao, 
                                  Long registroId, Object dadosAnteriores, Object dadosNovos) {
+        try {
+            salvarLogAuditoria(tabela, operacao, registroId, dadosAnteriores, dadosNovos);
+        } catch (Exception e) {
+            log.error("Erro ao registrar auditoria: {}", e.getMessage());
+            // Não relançar a exceção para não impactar o fluxo principal
+        }
+    }
+    
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
+    public void salvarLogAuditoria(String tabela, LogAuditoria.TipoOperacao operacao, 
+                                  Long registroId, Object dadosAnteriores, Object dadosNovos) {
         try {
             LogAuditoria logAuditoria = new LogAuditoria();
             logAuditoria.setTabela(tabela);
@@ -60,7 +70,8 @@ public class AuditoriaService {
                     operacao, tabela, registroId);
             
         } catch (Exception e) {
-            log.error("Erro ao registrar auditoria: {}", e.getMessage(), e);
+            log.error("Erro ao salvar log de auditoria: {}", e.getMessage());
+            // Não relançar a exceção para não impactar o fluxo principal
         }
     }
     

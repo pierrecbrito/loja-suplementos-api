@@ -67,8 +67,8 @@ public class AuditoriaAspect {
         }
     }
     
-    @AfterReturning(pointcut = "execution(* com.suplementos.lojasuplementosapi.service.*.findById(..))", 
-                   returning = "result")
+    // @AfterReturning(pointcut = "execution(* com.suplementos.lojasuplementosapi.service.*.findById(..))", 
+    //                returning = "result")
     public void auditarConsulta(JoinPoint joinPoint, Object result) {
         try {
             String className = joinPoint.getTarget().getClass().getSimpleName();
