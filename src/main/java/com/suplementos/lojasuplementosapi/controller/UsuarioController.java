@@ -3,6 +3,7 @@ package com.suplementos.lojasuplementosapi.controller;
 import com.suplementos.lojasuplementosapi.core.ApiConstants;
 import com.suplementos.lojasuplementosapi.core.SecurityConstants;
 import com.suplementos.lojasuplementosapi.dto.UsuarioRequest;
+import com.suplementos.lojasuplementosapi.dto.UsuarioUpdateRequest;
 import com.suplementos.lojasuplementosapi.dto.UsuarioResponse;
 import com.suplementos.lojasuplementosapi.service.UsuarioService;
 import com.suplementos.lojasuplementosapi.hateoas.ResourceModel;
@@ -86,7 +87,7 @@ public class UsuarioController {
     @PreAuthorize("hasAuthority('ROLE_ADMIN') or @usuarioSecurity.isUsuario(#id)")
     public ResponseEntity<ResourceModel<UsuarioResponse>> update(
             @PathVariable Long id, 
-            @Valid @RequestBody UsuarioRequest usuarioRequest) {
+            @Valid @RequestBody UsuarioUpdateRequest usuarioRequest) {
         
         UsuarioResponse usuario = usuarioService.update(id, usuarioRequest);
         return ResponseEntity.ok(createResourceModel(usuario));

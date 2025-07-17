@@ -48,10 +48,12 @@ public class JWTUtils {
 
     public boolean validateJwtToken(String authToken) {
         try {
+            logger.info("Validating JWT token...");
             Jwts.parserBuilder()
                     .setSigningKey(getSigningKey())
                     .build()
                     .parseClaimsJws(authToken);
+            logger.info("JWT token is valid");
             return true;
         } catch (SignatureException e) {
             logger.error("Invalid JWT signature: {}", e.getMessage());

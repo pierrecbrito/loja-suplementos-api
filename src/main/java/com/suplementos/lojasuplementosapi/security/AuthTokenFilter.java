@@ -31,15 +31,23 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         try {
             String jwt = parseJwt(request);
+            logger.info("JWT Token received: {}", jwt != null ? "Token present" : "No token");
+            
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
                 String username = jwtUtils.getUserNameFromJwtToken(jwt);
+                logger.info("Username extracted from token: {}", username);
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                logger.info("User authorities: {}", userDetails.getAuthorities());
+                
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+                logger.info("User authenticated successfully: {}", username);
+            } else {
+                logger.warn("JWT token is null or invalid");
             }
         } catch (Exception e) {
             logger.error("Cannot set user authentication: {}", e);

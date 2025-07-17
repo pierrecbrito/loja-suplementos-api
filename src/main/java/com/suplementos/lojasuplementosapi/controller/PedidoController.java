@@ -58,14 +58,14 @@ public class PedidoController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN') or @pedidoSecurity.isOwner(#id)")
+    @PreAuthorize("hasAuthority('ADMIN') or @pedidoSecurity.isOwner(#id)")
     public ResponseEntity<ResourceModel<PedidoResponse>> findById(@PathVariable Long id) {
         PedidoResponse pedido = pedidoService.findById(id);
         return ResponseEntity.ok(createResourceModel(pedido));
     }
 
     @GetMapping("/usuario/{usuarioId}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN') or @usuarioSecurity.isUsuario(#usuarioId)")
+    @PreAuthorize("hasAuthority('ADMIN') or @usuarioSecurity.isUsuario(#usuarioId)")
     public ResponseEntity<PaginatedResourceModel<ResourceModel<PedidoResponse>>> findByUsuario(
             @PathVariable Long usuarioId,
             @PageableDefault(size = 10, sort = "dataPedido") Pageable pageable) {
@@ -131,10 +131,33 @@ public class PedidoController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN') or @pedidoSecurity.isOwner(#id)")
+    @PreAuthorize("hasAuthority('ADMIN') or @pedidoSecurity.isOwner(#id)")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         pedidoService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+    
+    @GetMapping("/meus")
+    @PreAuthorize(SecurityConstants.IS_AUTHENTICATED)
+    public ResponseEntity<PaginatedResourceModel<ResourceModel<PedidoResponse>>> findMeusPedidos(
+            @PageableDefault(size = 10, sort = "dataPedido") Pageable pageable) {
+        
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        
+        Page<PedidoResponse> page = pedidoService.findByUsuario(userDetails.getId(), pageable);
+        
+        List<ResourceModel<PedidoResponse>> resources = page.getContent().stream()
+                .map(this::createResourceModel)
+                .collect(Collectors.toList());
+        
+        PaginatedResourceModel<ResourceModel<PedidoResponse>> resourceModel = 
+                new PaginatedResourceModel<>(resources, page);
+        
+        resourceModel.add(linkTo(methodOn(PedidoController.class)
+                .findMeusPedidos(pageable)).withSelfRel());
+        
+        return ResponseEntity.ok(resourceModel);
     }
 
     // Método auxiliar para criar o ResourceModel com links HATEOAS

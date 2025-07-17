@@ -27,7 +27,7 @@ public class CarrinhoController {
     private final CarrinhoService carrinhoService;
     
     @GetMapping
-    @PreAuthorize(SecurityConstants.IS_AUTHENTICATED)
+    @PreAuthorize("hasAuthority('ROLE_CLIENTE')")
     public ResponseEntity<ResourceModel<CarrinhoResponse>> obterCarrinho() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
@@ -39,7 +39,7 @@ public class CarrinhoController {
     }
     
     @PostMapping("/itens")
-    @PreAuthorize(SecurityConstants.IS_AUTHENTICATED)
+    @PreAuthorize("hasAuthority('ROLE_CLIENTE')")
     public ResponseEntity<ResourceModel<CarrinhoResponse>> adicionarItem(
             @Valid @RequestBody ItemCarrinhoRequest request) {
         
@@ -53,7 +53,7 @@ public class CarrinhoController {
     }
     
     @PutMapping("/itens/{itemId}")
-    @PreAuthorize(SecurityConstants.IS_AUTHENTICATED)
+    @PreAuthorize("hasAuthority('ROLE_CLIENTE')")
     public ResponseEntity<ResourceModel<CarrinhoResponse>> atualizarQuantidade(
             @PathVariable Long itemId,
             @RequestParam Integer quantidade) {
@@ -69,7 +69,7 @@ public class CarrinhoController {
     }
     
     @DeleteMapping("/itens/{itemId}")
-    @PreAuthorize(SecurityConstants.IS_AUTHENTICATED)
+    @PreAuthorize("hasAuthority('ROLE_CLIENTE')")
     public ResponseEntity<ResourceModel<CarrinhoResponse>> removerItem(@PathVariable Long itemId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
@@ -81,7 +81,7 @@ public class CarrinhoController {
     }
     
     @DeleteMapping
-    @PreAuthorize(SecurityConstants.IS_AUTHENTICATED)
+    @PreAuthorize("hasAuthority('ROLE_CLIENTE')")
     public ResponseEntity<Void> limparCarrinho() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();

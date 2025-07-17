@@ -17,13 +17,12 @@ public class AuditoriaAspect {
     private final AuditoriaService auditoriaService;
     
     @AfterReturning(pointcut = "execution(* com.suplementos.lojasuplementosapi.service.*.create(..))", 
-                    returning = "result")
+                   returning = "result")
     public void auditarCriacao(JoinPoint joinPoint, Object result) {
         try {
             String className = joinPoint.getTarget().getClass().getSimpleName();
             String tableName = className.replace("Service", "").toLowerCase();
             
-            // Tentar extrair ID do resultado
             Long id = extrairId(result);
             
             auditoriaService.registrarInsert(tableName, id, result);
@@ -34,13 +33,12 @@ public class AuditoriaAspect {
     }
     
     @AfterReturning(pointcut = "execution(* com.suplementos.lojasuplementosapi.service.*.update(..))", 
-                    returning = "result")
+                   returning = "result")
     public void auditarAtualizacao(JoinPoint joinPoint, Object result) {
         try {
             String className = joinPoint.getTarget().getClass().getSimpleName();
             String tableName = className.replace("Service", "").toLowerCase();
             
-            // Tentar extrair ID do resultado
             Long id = extrairId(result);
             
             auditoriaService.registrarUpdate(tableName, id, null, result);
@@ -56,7 +54,6 @@ public class AuditoriaAspect {
             String className = joinPoint.getTarget().getClass().getSimpleName();
             String tableName = className.replace("Service", "").toLowerCase();
             
-            // Tentar extrair ID dos argumentos
             Object[] args = joinPoint.getArgs();
             Long id = null;
             if (args.length > 0 && args[0] instanceof Long) {
@@ -71,13 +68,12 @@ public class AuditoriaAspect {
     }
     
     @AfterReturning(pointcut = "execution(* com.suplementos.lojasuplementosapi.service.*.findById(..))", 
-                    returning = "result")
+                   returning = "result")
     public void auditarConsulta(JoinPoint joinPoint, Object result) {
         try {
             String className = joinPoint.getTarget().getClass().getSimpleName();
             String tableName = className.replace("Service", "").toLowerCase();
             
-            // Tentar extrair ID dos argumentos
             Object[] args = joinPoint.getArgs();
             Long id = null;
             if (args.length > 0 && args[0] instanceof Long) {
@@ -95,7 +91,6 @@ public class AuditoriaAspect {
         if (obj == null) return null;
         
         try {
-            // Tentar usar reflection para encontrar método getId
             var method = obj.getClass().getMethod("getId");
             Object result = method.invoke(obj);
             return result instanceof Long ? (Long) result : null;

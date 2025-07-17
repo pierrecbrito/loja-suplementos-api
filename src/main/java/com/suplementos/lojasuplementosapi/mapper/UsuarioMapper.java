@@ -2,6 +2,7 @@ package com.suplementos.lojasuplementosapi.mapper;
 
 
 import com.suplementos.lojasuplementosapi.dto.UsuarioRequest;
+import com.suplementos.lojasuplementosapi.dto.UsuarioUpdateRequest;
 import com.suplementos.lojasuplementosapi.dto.UsuarioResponse;
 import com.suplementos.lojasuplementosapi.domain.Usuario;
 
@@ -44,6 +45,37 @@ public class UsuarioMapper {
         usuario.setNome(request.getNome());
         usuario.setTelefone(request.getTelefone());
         // Não atualizamos email e senha aqui, eles têm fluxos específicos
+        
+        if (request.getEndereco() != null) {
+            if (usuario.getEndereco() != null) {
+                enderecoMapper.updateEntityFromRequest(usuario.getEndereco(), request.getEndereco());
+            } else {
+                usuario.setEndereco(enderecoMapper.toEntity(request.getEndereco()));
+            }
+        }
+    }
+    
+    public void updateEntityFromUpdateRequest(Usuario usuario, UsuarioUpdateRequest request) {
+        if (usuario == null || request == null) {
+            return;
+        }
+        
+        // Atualiza apenas os campos que foram fornecidos (não são null)
+        if (request.getNome() != null) {
+            usuario.setNome(request.getNome());
+        }
+        
+        if (request.getEmail() != null) {
+            usuario.setEmail(request.getEmail());
+        }
+        
+        if (request.getTelefone() != null) {
+            usuario.setTelefone(request.getTelefone());
+        }
+        
+        if (request.getRole() != null) {
+            usuario.setRole(request.getRole());
+        }
         
         if (request.getEndereco() != null) {
             if (usuario.getEndereco() != null) {

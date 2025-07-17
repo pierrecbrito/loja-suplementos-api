@@ -89,7 +89,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\": \"admin@sistema.com\",\n    \"senha\": \"admin123\"\n}"
+							"raw": "{\n    \"email\": \"admin2@sistema.com\",\n    \"senha\": \"admin123\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/auth/login",
@@ -131,7 +131,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\": \"joao@cliente.com\",\n    \"senha\": \"cliente123\"\n}"
+							"raw": "{\n    \"email\": \"ayron2@gmail.com\",\n    \"senha\": \"ayron1234\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/auth/login",

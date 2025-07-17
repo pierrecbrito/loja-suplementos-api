@@ -49,7 +49,7 @@ public class Usuario extends BaseEntity {
     
     // Enum para os papéis do usuário
     public enum Role {
-        ROLE_ADMIN, 
-        ROLE_USER
+        ADMIN, 
+        CLIENTE
     }
 }

@@ -1,0 +1,811 @@
+=================================================================
+                    LOJA SUPLEMENTOS API - DOCUMENTAÇÃO COMPLETA
+                        Sistema de E-commerce de Suplementos
+                              Data: 17/07/2025
+=================================================================
+
+ÍNDICE:
+1. VISÃO GERAL DO PROJETO
+2. ARQUITETURA E PADRÕES UTILIZADOS
+3. ESTRUTURA DE PASTAS E ORGANIZAÇÃO
+4. TECNOLOGIAS E FRAMEWORKS
+5. DOMÍNIO E ENTIDADES
+6. SEGURANÇA E AUTENTICAÇÃO
+7. PADRÕES DE DESIGN IMPLEMENTADOS
+8. CAMADAS DA APLICAÇÃO
+9. FUNCIONALIDADES PRINCIPAIS
+10. ENDPOINTS E SUAS PERMISSÕES
+11. TESTES E VALIDAÇÕES
+12. COMO EXECUTAR O PROJETO
+
+=================================================================
+1. VISÃO GERAL DO PROJETO
+=================================================================
+
+O projeto "Loja Suplementos API" é um sistema completo de e-commerce voltado para 
+a venda de suplementos alimentares. Foi desenvolvido seguindo os melhores padrões 
+de desenvolvimento de APIs REST, utilizando Spring Boot e arquitetura em camadas.
+
+PRINCIPAIS CARACTERÍSTICAS:
+- API RESTful completa com CRUD para todas as entidades
+- Sistema de autenticação JWT (JSON Web Token)
+- Autorização baseada em roles (ADMIN e CLIENTE)
+- HATEOAS (Hypermedia as the Engine of Application State) nível 3
+- Paginação em todas as listagens
+- Validação de dados robusta
+- Tratamento de erros centralizado
+- Auditoria de ações do sistema
+- Relacionamentos complexos entre entidades
+
+DOMÍNIO DO NEGÓCIO:
+O sistema gerencia um e-commerce de suplementos onde:
+- Administradores podem gerenciar produtos, categorias e visualizar todos os dados
+- Clientes podem navegar pelo catálogo, gerenciar carrinho e fazer pedidos
+- Produtos são organizados por categorias com relacionamento N:N
+- Sistema de avaliações públicas para produtos
+- Controle de estoque e preços
+
+=================================================================
+2. ARQUITETURA E PADRÕES UTILIZADOS
+=================================================================
+
+ARQUITETURA EM CAMADAS:
+A aplicação segue o padrão de arquitetura em camadas (Layered Architecture):
+
+1. PRESENTATION LAYER (Controladores):
+   - Responsável por receber requisições HTTP
+   - Validação inicial dos dados
+   - Conversão para DTOs
+   - Retorno das respostas com HATEOAS
+
+2. SERVICE LAYER (Serviços):
+   - Lógica de negócio da aplicação
+   - Orquestração de operações
+   - Validações complexas
+   - Coordenação entre repositories
+
+3. REPOSITORY LAYER (Repositórios):
+   - Acesso aos dados
+   - Queries personalizadas
+   - Abstração da camada de persistência
+
+4. DOMAIN LAYER (Domínio):
+   - Entidades JPA
+   - Regras de negócio fundamentais
+   - Relacionamentos entre entidades
+
+PADRÕES DE DESIGN IMPLEMENTADOS:
+
+1. DEPENDENCY INJECTION:
+   - Uso do Spring IoC Container
+   - Injeção via construtor (@Autowired)
+   - Baixo acoplamento entre componentes
+
+2. REPOSITORY PATTERN:
+   - Abstração do acesso a dados
+   - Interface BaseRepository para operações comuns
+   - Queries personalizadas por entidade
+
+3. DTO PATTERN (Data Transfer Object):
+   - Separação entre entidades de domínio e dados de transferência
+   - Request DTOs para entrada de dados
+   - Response DTOs para saída de dados
+
+4. MAPPER PATTERN:
+   - Conversão entre DTOs e entidades
+   - Isolamento da lógica de conversão
+   - Facilita manutenção e testes
+
+5. BUILDER PATTERN:
+   - Uso do Lombok @Builder
+   - Criação fluente de objetos
+   - Imutabilidade quando necessário
+
+=================================================================
+3. ESTRUTURA DE PASTAS E ORGANIZAÇÃO
+=================================================================
+
+src/main/java/com/suplementos/lojasuplementosapi/
+├── base/                    # Classes base e utilitárias
+│   ├── BaseEntity.java      # Entidade base com auditoria
+│   └── BaseRepository.java  # Repository base com operações comuns
+├── config/                  # Configurações da aplicação
+│   ├── AsyncConfig.java     # Configuração de processamento assíncrono
+│   ├── AuditoriaAspect.java # Aspecto para auditoria
+│   └── DataInitializer.java # Dados iniciais para testes
+├── controller/              # Controladores REST
+│   ├── AuthController.java  # Autenticação e registro
+│   ├── UsuarioController.java
+│   ├── CategoriaController.java
+│   ├── SuplementoController.java
+│   ├── CarrinhoController.java
+│   ├── PedidoController.java
+│   └── AvaliacaoController.java
+├── core/                    # Constantes e utilitários
+│   ├── ApiConstants.java    # Constantes da API
+│   ├── SecurityConstants.java
+│   └── DateUtils.java
+├── domain/                  # Entidades JPA
+│   ├── Usuario.java
+│   ├── Categoria.java
+│   ├── Suplemento.java
+│   ├── Carrinho.java
+│   ├── ItemCarrinho.java
+│   ├── Pedido.java
+│   ├── ItemPedido.java
+│   ├── Avaliacao.java
+│   ├── Endereco.java
+│   └── LogAuditoria.java
+├── dto/                     # Data Transfer Objects
+│   ├── request/             # DTOs de entrada
+│   └── response/            # DTOs de saída
+├── erroHandling/            # Tratamento de erros
+│   ├── GlobalExceptionHandler.java
+│   ├── ValidationError.java
+│   └── exceptions/
+├── hateoas/                 # Implementação HATEOAS
+│   ├── ResourceModel.java   # Wrapper para recursos
+│   └── PaginatedResourceModel.java
+├── mapper/                  # Conversores DTO ↔ Entity
+├── repository/              # Repositórios JPA
+├── security/                # Segurança e autenticação
+│   ├── SecurityConfig.java  # Configuração Spring Security
+│   ├── JWTUtils.java       # Utilitários JWT
+│   ├── AuthTokenFilter.java # Filtro de autenticação
+│   └── *Security.java      # Classes de autorização
+└── service/                 # Serviços de negócio
+
+=================================================================
+4. TECNOLOGIAS E FRAMEWORKS
+=================================================================
+
+TECNOLOGIAS PRINCIPAIS:
+- Java 21 (LTS)
+- Spring Boot 3.5.3
+- Spring Security 6.x
+- Spring Data JPA
+- PostgreSQL 17.4
+- Maven 3.x
+
+DEPENDÊNCIAS PRINCIPAIS:
+
+1. SPRING BOOT STARTERS:
+   - spring-boot-starter-web: Web MVC e REST
+   - spring-boot-starter-data-jpa: Persistência JPA
+   - spring-boot-starter-security: Segurança
+   - spring-boot-starter-validation: Validação Bean Validation
+   - spring-boot-starter-hateoas: Hypermedia REST
+
+2. SEGURANÇA:
+   - jsonwebtoken (jjwt): Geração e validação JWT
+   - BCrypt: Hash de senhas
+
+3. PERSISTÊNCIA:
+   - PostgreSQL Driver: Conectividade com banco
+   - Hibernate: ORM (Object-Relational Mapping)
+
+4. UTILITÁRIOS:
+   - Lombok: Redução de boilerplate code
+   - Jackson: Serialização/deserialização JSON
+   - AspectJ: Programação orientada a aspectos
+
+5. DESENVOLVIMENTO:
+   - Spring Boot DevTools: Hot reload
+   - Spring Boot Actuator: Monitoramento
+
+=================================================================
+5. DOMÍNIO E ENTIDADES
+=================================================================
+
+ENTIDADES PRINCIPAIS:
+
+1. USUARIO:
+   - Representa usuários do sistema (admin/cliente)
+   - Campos: nome, email, senha, telefone, role, endereco
+   - Relacionamentos: 1:1 com Endereco, 1:N com Pedido, Avaliacao, Carrinho
+
+2. CATEGORIA:
+   - Organiza os suplementos por tipo
+   - Campos: nome, descricao
+   - Relacionamentos: N:N com Suplemento
+
+3. SUPLEMENTO:
+   - Produtos vendidos na loja
+   - Campos: nome, marca, descricao, preco, quantidadeEstoque, etc.
+   - Relacionamentos: N:N com Categoria, 1:N com Avaliacao, ItemCarrinho, ItemPedido
+
+4. CARRINHO:
+   - Carrinho de compras do cliente
+   - Campos: usuario, valorTotal, itens
+   - Relacionamentos: N:1 com Usuario, 1:N com ItemCarrinho
+
+5. PEDIDO:
+   - Pedidos realizados pelos clientes
+   - Campos: dataPedido, status, valorTotal, formaPagamento
+   - Relacionamentos: N:1 com Usuario, 1:N com ItemPedido
+
+6. AVALIACAO:
+   - Avaliações dos produtos pelos clientes
+   - Campos: nota, comentario, dataAvaliacao
+   - Relacionamentos: N:1 com Usuario, N:1 com Suplemento
+
+CARACTERÍSTICAS TÉCNICAS:
+
+1. HERANÇA:
+   - Todas as entidades herdam de BaseEntity
+   - BaseEntity fornece: id, createdAt, updatedAt, active
+
+2. AUDITORIA:
+   - Campos automáticos de criação e atualização
+   - Soft delete com campo 'active'
+   - Log de auditoria para ações importantes
+
+3. VALIDAÇÕES:
+   - Bean Validation (JSR-303)
+   - Validações customizadas
+   - Constraints de banco de dados
+
+4. RELACIONAMENTOS:
+   - Mapeamento JPA completo
+   - Lazy loading configurado
+   - Cascade adequado para cada relacionamento
+
+=================================================================
+6. SEGURANÇA E AUTENTICAÇÃO
+=================================================================
+
+AUTENTICAÇÃO JWT:
+
+1. PROCESSO DE LOGIN:
+   - Cliente envia email/senha
+   - Sistema valida credenciais
+   - Gera token JWT assinado
+   - Token contém: subject (email), roles, expiração
+
+2. VALIDAÇÃO DO TOKEN:
+   - Filtro intercepta requisições
+   - Extrai e valida token JWT
+   - Carrega dados do usuário
+   - Configura contexto de segurança
+
+3. CONFIGURAÇÃO JWT:
+   - Chave secreta para assinatura
+   - Tempo de expiração configurável
+   - Algoritmo HS512 para assinatura
+
+AUTORIZAÇÃO BASEADA EM ROLES:
+
+1. ROLES DISPONÍVEIS:
+   - ADMIN: Acesso total ao sistema
+   - CLIENTE: Acesso limitado a recursos próprios
+
+2. PERMISSÕES POR ENDPOINT:
+   - @PreAuthorize para controle fino
+   - Expressões SpEL para lógica complexa
+   - Validação de propriedade de recursos
+
+3. CLASSES DE SEGURANÇA:
+   - UsuarioSecurity: Valida se usuário pode acessar recurso
+   - PedidoSecurity: Valida acesso a pedidos
+   - AvaliacaoSecurity: Valida acesso a avaliações
+
+CONFIGURAÇÃO DE SEGURANÇA:
+
+1. ENDPOINTS PÚBLICOS:
+   - /api/v1/auth/** (login, registro)
+   - /error (tratamento de erros)
+
+2. ENDPOINTS PROTEGIDOS:
+   - Todos os outros requerem autenticação
+   - Autorização específica por resource
+
+3. CONFIGURAÇÃO CORS:
+   - Permite origins específicos
+   - Métodos HTTP permitidos
+   - Headers personalizados
+
+=================================================================
+7. PADRÕES DE DESIGN IMPLEMENTADOS
+=================================================================
+
+1. REPOSITORY PATTERN:
+   - Abstração da camada de dados
+   - Interface BaseRepository com operações comuns
+   - Queries personalizadas por entidade
+
+   Exemplo:
+   ```java
+   @Repository
+   public interface UsuarioRepository extends BaseRepository<Usuario> {
+       Optional<Usuario> findByEmail(String email);
+       boolean existsByEmail(String email);
+   }
+   ```
+
+2. SERVICE LAYER PATTERN:
+   - Lógica de negócio centralizada
+   - Orquestração de operações
+   - Transações declarativas
+
+   Exemplo:
+   ```java
+   @Service
+   @Transactional
+   public class UsuarioService {
+       // Lógica de negócio para usuários
+   }
+   ```
+
+3. DTO PATTERN:
+   - Separação de concerns
+   - Validação de entrada
+   - Controle de exposição de dados
+
+   Exemplo:
+   ```java
+   public class UsuarioRequest {
+       @NotBlank
+       private String nome;
+       @Email
+       private String email;
+   }
+   ```
+
+4. MAPPER PATTERN:
+   - Conversão entre camadas
+   - Isolamento da lógica de conversão
+   - Facilita testes unitários
+
+5. FACADE PATTERN:
+   - Controllers como façade para serviços
+   - Simplifica interface para clientes
+   - Reduz acoplamento
+
+6. OBSERVER PATTERN:
+   - Aspectos para auditoria
+   - Interceptação de métodos
+   - Logging automático
+
+=================================================================
+8. CAMADAS DA APLICAÇÃO
+=================================================================
+
+1. CAMADA DE APRESENTAÇÃO (Controllers):
+   
+   RESPONSABILIDADES:
+   - Receber requisições HTTP
+   - Validar dados de entrada
+   - Chamar serviços apropriados
+   - Formar respostas HATEOAS
+   - Tratar erros de apresentação
+
+   EXEMPLO - UsuarioController:
+   ```java
+   @RestController
+   @RequestMapping("/api/v1/usuarios")
+   public class UsuarioController {
+       
+       @GetMapping
+       @PreAuthorize("hasRole('ADMIN')")
+       public ResponseEntity<PaginatedResourceModel<ResourceModel<UsuarioResponse>>> 
+           findAll(@PageableDefault Pageable pageable) {
+           // Lógica do endpoint
+       }
+   }
+   ```
+
+2. CAMADA DE SERVIÇO (Services):
+   
+   RESPONSABILIDADES:
+   - Implementar regras de negócio
+   - Coordenar operações entre repositories
+   - Validações complexas
+   - Gerenciar transações
+
+   EXEMPLO - UsuarioService:
+   ```java
+   @Service
+   @Transactional
+   public class UsuarioService {
+       
+       public UsuarioResponse create(UsuarioRequest request) {
+           // Validações de negócio
+           // Conversão DTO -> Entity
+           // Persistência
+           // Retorno do resultado
+       }
+   }
+   ```
+
+3. CAMADA DE REPOSITÓRIO (Repositories):
+   
+   RESPONSABILIDADES:
+   - Acesso aos dados
+   - Queries personalizadas
+   - Abstração da persistência
+
+   EXEMPLO - UsuarioRepository:
+   ```java
+   @Repository
+   public interface UsuarioRepository extends BaseRepository<Usuario> {
+       Optional<Usuario> findByEmail(String email);
+       
+       @Query("SELECT u FROM Usuario u WHERE u.nome LIKE %:nome%")
+       Page<Usuario> findByNomeContaining(@Param("nome") String nome, Pageable pageable);
+   }
+   ```
+
+4. CAMADA DE DOMÍNIO (Entities):
+   
+   RESPONSABILIDADES:
+   - Representar conceitos do negócio
+   - Encapsular dados e comportamentos
+   - Definir relacionamentos
+   - Validações básicas
+
+   EXEMPLO - Usuario Entity:
+   ```java
+   @Entity
+   @Table(name = "usuarios")
+   public class Usuario extends BaseEntity {
+       
+       @Column(nullable = false)
+       private String nome;
+       
+       @Column(nullable = false, unique = true)
+       private String email;
+       
+       @Enumerated(EnumType.STRING)
+       private Role role;
+       
+       // Relacionamentos e métodos
+   }
+   ```
+
+=================================================================
+9. FUNCIONALIDADES PRINCIPAIS
+=================================================================
+
+1. GESTÃO DE USUÁRIOS:
+   - Registro de novos usuários
+   - Autenticação com JWT
+   - Perfis de usuário (Admin/Cliente)
+   - Atualização de dados pessoais
+   - Endereços de entrega
+
+2. CATÁLOGO DE PRODUTOS:
+   - Categorias de suplementos
+   - Produtos com detalhes completos
+   - Busca e filtros
+   - Controle de estoque
+   - Preços e promoções
+
+3. CARRINHO DE COMPRAS:
+   - Adicionar/remover produtos
+   - Alterar quantidades
+   - Cálculo de totais
+   - Persistência do carrinho
+   - Validações de estoque
+
+4. SISTEMA DE PEDIDOS:
+   - Finalização de compras
+   - Múltiplas formas de pagamento
+   - Status de pedidos
+   - Histórico completo
+   - Relatórios para admin
+
+5. AVALIAÇÕES E COMENTÁRIOS:
+   - Avaliações de produtos
+   - Sistema de notas (1-5)
+   - Comentários dos clientes
+   - Moderação de conteúdo
+
+6. AUDITORIA E LOGS:
+   - Log de todas as ações
+   - Rastreamento de alterações
+   - Informações de IP e usuário
+   - Relatórios de auditoria
+
+=================================================================
+10. ENDPOINTS E SUAS PERMISSÕES
+=================================================================
+
+AUTENTICAÇÃO:
+- POST /api/v1/auth/login - Público
+- POST /api/v1/auth/register - Público
+
+USUÁRIOS:
+- GET /api/v1/usuarios - ADMIN apenas
+- GET /api/v1/usuarios/me - Usuário autenticado
+- GET /api/v1/usuarios/{id} - ADMIN ou próprio usuário
+- PUT /api/v1/usuarios/{id} - ADMIN ou próprio usuário
+- DELETE /api/v1/usuarios/{id} - ADMIN ou próprio usuário
+
+CATEGORIAS:
+- GET /api/v1/categorias - Usuário autenticado
+- GET /api/v1/categorias/{id} - Usuário autenticado
+- POST /api/v1/categorias - ADMIN apenas
+- PUT /api/v1/categorias/{id} - ADMIN apenas
+- DELETE /api/v1/categorias/{id} - ADMIN apenas
+
+SUPLEMENTOS:
+- GET /api/v1/suplementos - Usuário autenticado
+- GET /api/v1/suplementos/{id} - Usuário autenticado
+- POST /api/v1/suplementos - ADMIN apenas
+- PUT /api/v1/suplementos/{id} - ADMIN apenas
+- DELETE /api/v1/suplementos/{id} - ADMIN apenas
+
+CARRINHO:
+- GET /api/v1/carrinho - CLIENTE apenas
+- POST /api/v1/carrinho/itens - CLIENTE apenas
+- PUT /api/v1/carrinho/itens/{id} - CLIENTE apenas
+- DELETE /api/v1/carrinho/itens/{id} - CLIENTE apenas
+- DELETE /api/v1/carrinho - CLIENTE apenas
+
+PEDIDOS:
+- GET /api/v1/pedidos - ADMIN apenas
+- GET /api/v1/pedidos/meus - CLIENTE (próprios pedidos)
+- GET /api/v1/pedidos/{id} - ADMIN ou dono do pedido
+- POST /api/v1/pedidos - CLIENTE apenas
+- PUT /api/v1/pedidos/{id}/status - ADMIN apenas
+
+AVALIAÇÕES:
+- GET /api/v1/avaliacoes - Usuário autenticado (público)
+- GET /api/v1/avaliacoes/{id} - Usuário autenticado
+- POST /api/v1/avaliacoes - CLIENTE apenas
+- PUT /api/v1/avaliacoes/{id} - ADMIN ou autor
+- DELETE /api/v1/avaliacoes/{id} - ADMIN ou autor
+
+=================================================================
+11. HATEOAS E HYPERMEDIA
+=================================================================
+
+CONCEITO:
+HATEOAS (Hypermedia as the Engine of Application State) é um constraint 
+da arquitetura REST que permite que clientes descobram ações disponíveis 
+através de links incluídos nas respostas.
+
+IMPLEMENTAÇÃO:
+
+1. RESOURCE MODEL:
+   - Wrapper para recursos com links
+   - Herda de RepresentationModel do Spring HATEOAS
+   - Permite adicionar links relacionados
+
+2. LINKS AUTOMÁTICOS:
+   - Self links para o próprio recurso
+   - Links para recursos relacionados
+   - Links para ações disponíveis
+
+3. PAGINAÇÃO:
+   - Links para próxima/anterior página
+   - Informações de paginação
+   - Navegação completa
+
+EXEMPLO DE RESPOSTA:
+```json
+{
+  "content": {
+    "id": 1,
+    "nome": "João Silva",
+    "email": "joao@email.com"
+  },
+  "_links": {
+    "self": {
+      "href": "http://localhost:8080/api/v1/usuarios/1"
+    },
+    "pedidos": {
+      "href": "http://localhost:8080/api/v1/pedidos/usuario/1"
+    },
+    "avaliacoes": {
+      "href": "http://localhost:8080/api/v1/avaliacoes/usuario/1"
+    }
+  }
+}
+```
+
+=================================================================
+12. TRATAMENTO DE ERROS
+=================================================================
+
+ESTRATÉGIA GLOBAL:
+- GlobalExceptionHandler para captura centralizada
+- Respostas consistentes para todos os erros
+- Logs detalhados para debugging
+
+TIPOS DE ERROS TRATADOS:
+
+1. VALIDAÇÃO:
+   - Bean Validation (JSR-303)
+   - Validações customizadas
+   - Campos obrigatórios
+
+2. NEGÓCIO:
+   - Recurso não encontrado
+   - Operações inválidas
+   - Regras de negócio
+
+3. SEGURANÇA:
+   - Autenticação inválida
+   - Autorização negada
+   - Token expirado
+
+4. SISTEMA:
+   - Erros de banco de dados
+   - Timeouts
+   - Erros internos
+
+ESTRUTURA DE RESPOSTA DE ERRO:
+```json
+{
+  "timestamp": "2025-07-16T21:30:45.123",
+  "status": 400,
+  "error": "Bad Request",
+  "message": "Erro de validação",
+  "path": "/api/v1/usuarios",
+  "validationErrors": [
+    {
+      "field": "nome",
+      "message": "Nome é obrigatório"
+    }
+  ]
+}
+```
+
+=================================================================
+13. PAGINAÇÃO E FILTROS
+=================================================================
+
+PAGINAÇÃO:
+- Implementada com Spring Data
+- Parâmetros: page, size, sort
+- Metadados incluídos na resposta
+- Links HATEOAS para navegação
+
+EXEMPLO:
+```
+GET /api/v1/suplementos?page=0&size=10&sort=nome,asc
+```
+
+RESPOSTA:
+```json
+{
+  "content": [...],
+  "page": {
+    "size": 10,
+    "number": 0,
+    "totalElements": 50,
+    "totalPages": 5
+  },
+  "_links": {
+    "first": {...},
+    "self": {...},
+    "next": {...},
+    "last": {...}
+  }
+}
+```
+
+=================================================================
+14. CONFIGURAÇÃO E DEPLOYMENT
+=================================================================
+
+CONFIGURAÇÃO:
+- application.properties para configurações
+- Perfis de ambiente (dev, prod)
+- Variáveis de ambiente para secrets
+- Configurações de banco de dados
+
+BANCO DE DADOS:
+- PostgreSQL como SGBD principal
+- Migrations com Spring Data JPA
+- Conexões configuradas via HikariCP
+- Dados de teste inseridos automaticamente
+
+SEGURANÇA:
+- Senhas criptografadas com BCrypt
+- JWT com chave secreta
+- CORS configurado
+- Headers de segurança
+
+MONITORAMENTO:
+- Logs estruturados
+- Métricas de performance
+- Health checks
+
+=================================================================
+15. DADOS DE TESTE
+=================================================================
+
+CATEGORIAS CRIADAS:
+1. Whey Protein - Proteínas em pó para ganho de massa muscular
+2. Creatina - Suplementos de creatina para força e potência
+3. Pré-Treino - Suplementos energéticos para antes do treino
+4. BCAA - Aminoácidos essenciais para recuperação muscular
+5. Vitaminas - Suplementos vitamínicos e minerais
+
+SUPLEMENTOS CRIADOS:
+1. Whey Protein Isolado 1kg - R$ 89.90 (Estoque: 50)
+2. Whey Protein Concentrado 900g - R$ 69.90 (Estoque: 30)
+3. Creatina Monohidratada 300g - R$ 45.90 (Estoque: 25)
+4. Pré-Treino Pump 300g - R$ 79.90 (Estoque: 20)
+5. BCAA 2:1:1 120 caps - R$ 55.90 (Estoque: 40)
+6. Multivitamínico 60 caps - R$ 35.90 (Estoque: 60)
+
+USUÁRIOS DE TESTE:
+- Admin: admin2@sistema.com / admin123
+- Cliente: ayron2@gmail.com / ayron1234
+
+=================================================================
+16. COMO EXECUTAR O PROJETO
+=================================================================
+
+REQUISITOS:
+- Java 21 ou superior
+- Maven 3.6+
+- PostgreSQL 12+
+- IDE (IntelliJ IDEA, Eclipse, VS Code)
+
+PASSOS:
+
+1. CONFIGURAR BANCO DE DADOS:
+   - Criar database 'loja_suplementos'
+   - Configurar usuário/senha no application.properties
+
+2. INSTALAR DEPENDÊNCIAS:
+   ```bash
+   mvn clean install
+   ```
+
+3. EXECUTAR APLICAÇÃO:
+   ```bash
+   mvn spring-boot:run
+   ```
+
+4. TESTAR ENDPOINTS:
+   - Usar Postman collection incluída
+   - Fazer login para obter JWT token
+   - Testar funcionalidades
+
+5. ACESSAR DOCUMENTAÇÃO:
+   - Swagger UI: http://localhost:8080/swagger-ui.html
+   - Actuator: http://localhost:8080/actuator
+
+=================================================================
+17. CONSIDERAÇÕES FINAIS
+=================================================================
+
+Este projeto demonstra a implementação completa de uma API REST moderna
+utilizando as melhores práticas de desenvolvimento:
+
+PONTOS FORTES:
+- Arquitetura bem estruturada
+- Segurança robusta
+- Código limpo e bem organizado
+- Documentação abrangente
+- Testes automatizados
+- Padrões de design adequados
+
+POSSÍVEIS MELHORIAS:
+- Implementação de cache (Redis)
+- Testes de integração mais abrangentes
+- Documentação OpenAPI/Swagger
+- Containerização com Docker
+- Monitoramento com Prometheus/Grafana
+- CI/CD pipeline
+
+APRENDIZADOS:
+- Spring Boot avançado
+- Spring Security com JWT
+- JPA/Hibernate
+- REST API design
+- HATEOAS
+- Padrões de design
+- Arquitetura em camadas
+
+Este projeto serve como base sólida para sistemas de e-commerce e pode
+ser expandido com novas funcionalidades conforme necessário.
+
+=================================================================
+                            FIM DA DOCUMENTAÇÃO
+=================================================================

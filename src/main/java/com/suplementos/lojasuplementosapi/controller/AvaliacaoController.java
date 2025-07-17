@@ -38,7 +38,7 @@ public class AvaliacaoController {
     }
 
     @GetMapping
-    @PreAuthorize(SecurityConstants.HAS_ROLE_ADMIN)
+    @PreAuthorize(SecurityConstants.IS_AUTHENTICATED)
     public ResponseEntity<PaginatedResourceModel<ResourceModel<AvaliacaoResponse>>> findAll(
             @PageableDefault(size = 10, sort = "dataAvaliacao") Pageable pageable) {
         
@@ -83,7 +83,7 @@ public class AvaliacaoController {
     }
 
     @GetMapping("/usuario/{usuarioId}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN') or @usuarioSecurity.isUsuario(#usuarioId)")
+    @PreAuthorize("hasAuthority('ADMIN') or @usuarioSecurity.isUsuario(#usuarioId)")
     public ResponseEntity<PaginatedResourceModel<ResourceModel<AvaliacaoResponse>>> findByUsuario(
             @PathVariable Long usuarioId,
             @PageableDefault(size = 10, sort = "dataAvaliacao") Pageable pageable) {
@@ -118,7 +118,7 @@ public class AvaliacaoController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN') or @avaliacaoSecurity.isOwner(#id)")
+    @PreAuthorize("hasAuthority('ADMIN') or @avaliacaoSecurity.isOwner(#id)")
     public ResponseEntity<ResourceModel<AvaliacaoResponse>> update(
             @PathVariable Long id,
             @Valid @RequestBody AvaliacaoRequest avaliacaoRequest) {

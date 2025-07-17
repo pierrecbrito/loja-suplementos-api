@@ -3,6 +3,7 @@ package com.suplementos.lojasuplementosapi.service;
 import com.suplementos.lojasuplementosapi.core.ApiConstants;
 import com.suplementos.lojasuplementosapi.domain.Usuario;
 import com.suplementos.lojasuplementosapi.dto.UsuarioRequest;
+import com.suplementos.lojasuplementosapi.dto.UsuarioUpdateRequest;
 import com.suplementos.lojasuplementosapi.dto.UsuarioResponse;
 import com.suplementos.lojasuplementosapi.erroHandling.BadRequestException;
 import com.suplementos.lojasuplementosapi.erroHandling.ResourceNotFoundException;
@@ -64,11 +65,11 @@ public class UsuarioService {
         // Criptografar senha
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         
-        // Usar o role do request ou ROLE_USER como padrão
+        // Usar o role do request ou CLIENTE como padrão
         if (usuarioRequest.getRole() != null) {
             usuario.setRole(usuarioRequest.getRole());
         } else {
-            usuario.setRole(Usuario.Role.ROLE_USER);
+            usuario.setRole(Usuario.Role.CLIENTE);
         }
 
         Usuario usuarioSalvo = usuarioRepository.save(usuario);
@@ -87,6 +88,29 @@ public class UsuarioService {
         }
 
         usuarioMapper.updateEntityFromRequest(usuario, usuarioRequest);
+        
+        // Criptografar nova senha se fornecida
+        if (usuarioRequest.getSenha() != null && !usuarioRequest.getSenha().isEmpty()) {
+            usuario.setSenha(passwordEncoder.encode(usuarioRequest.getSenha()));
+        }
+
+        Usuario usuarioAtualizado = usuarioRepository.save(usuario);
+        return usuarioMapper.toResponse(usuarioAtualizado);
+    }
+
+    public UsuarioResponse update(Long id, UsuarioUpdateRequest usuarioRequest) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        ApiConstants.ERRO_USUARIO_NAO_ENCONTRADO + id));
+
+        // Verificar se o novo email já está em uso por outro usuário (apenas se email foi fornecido)
+        if (usuarioRequest.getEmail() != null && 
+            !usuario.getEmail().equals(usuarioRequest.getEmail()) && 
+            usuarioRepository.existsByEmail(usuarioRequest.getEmail())) {
+            throw new BadRequestException("Email já está em uso: " + usuarioRequest.getEmail());
+        }
+
+        usuarioMapper.updateEntityFromUpdateRequest(usuario, usuarioRequest);
         
         // Criptografar nova senha se fornecida
         if (usuarioRequest.getSenha() != null && !usuarioRequest.getSenha().isEmpty()) {
